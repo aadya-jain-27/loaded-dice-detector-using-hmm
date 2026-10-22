@@ -1,0 +1,173 @@
+/* =============================================
+   style.css — colours and layout of the page
+   ============================================= */
+
+/* ---------- Colours (light mode) ---------- */
+:root {
+  --bg: #f6f4ee;
+  --card: #ffffff;
+  --ink: #1b1b1f;
+  --muted: #686871;
+  --line: #e2dfd6;
+  --fair: #24806c;
+  --fair-soft: #d6eee7;
+  --loaded: #c43c33;
+  --loaded-soft: #f9dcd8;
+  --blue: #3556d4;
+  --blue-soft: #e2e8fd;
+  --gold: #d99a18;
+}
+
+/* ---------- Colours (dark mode, used automatically) ---------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121215;
+    --card: #1c1c21;
+    --ink: #f0f0f2;
+    --muted: #9b9ba5;
+    --line: #2f2f36;
+    --fair: #58c7ad;
+    --fair-soft: #193a32;
+    --loaded: #f27a70;
+    --loaded-soft: #48201d;
+    --blue: #8ea5ff;
+    --blue-soft: #232b4d;
+    --gold: #f2bd4b;
+  }
+}
+
+/* ---------- Page basics ---------- */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: clamp(16px, 1.25vw, 21px)/1.55 -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+h1 { font-size: clamp(40px, 6.5vw, 96px); line-height: 1.05; margin: 0; letter-spacing: -0.03em; }
+h2 { font-size: clamp(28px, 3.6vw, 56px); line-height: 1.1; margin: 0; letter-spacing: -0.02em; }
+h3 { font-size: 1.1em; margin: 0 0 .3em; }
+p  { margin: 0; }
+
+.muted { color: var(--muted); }
+.small { font-size: .78em; }
+.fair-text   { color: var(--fair); font-weight: 700; }
+.loaded-text { color: var(--loaded); font-weight: 700; }
+.center-text { text-align: center; }
+
+/* ---------- Top menu ---------- */
+.nav {
+  position: sticky; top: 0; z-index: 10;
+  display: flex; align-items: center; gap: 6px;
+  height: 60px; padding: 0 16px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.nav a { color: var(--muted); text-decoration: none; font-size: 14px; padding: 6px 10px; border-radius: 8px; }
+.nav a:hover { color: var(--ink); background: var(--blue-soft); }
+.nav .title { color: var(--ink); font-weight: 800; font-size: 16px; margin-right: auto; }
+@media (max-width: 800px) { .nav a:not(.title) { display: none; } }
+
+/* ---------- Sections ---------- */
+section {
+  max-width: 1180px; margin: 0 auto; padding: 72px 16px;
+  display: flex; flex-direction: column; gap: 20px;
+  border-bottom: 1px solid var(--line);
+}
+section:last-of-type { border-bottom: 0; }
+.hero { min-height: calc(100vh - 60px); justify-content: center; align-items: center; text-align: center; }
+.kicker { color: var(--blue); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: .7em; }
+.sub { color: var(--muted); font-size: 1.15em; }
+.scroll { color: var(--blue); text-decoration: none; font-weight: 650; margin-top: 4vh; }
+
+/* ---------- Layout helpers ---------- */
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.row.center { justify-content: center; }
+.cols { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); align-items: start; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+
+/* ---------- Cards ---------- */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 20px; }
+.card.fair   { border-top: 6px solid var(--fair); }
+.card.loaded { border-top: 6px solid var(--loaded); }
+.card.blue   { border-top: 6px solid var(--blue); }
+.note { background: var(--blue-soft); border-radius: 14px; padding: 12px 16px; text-align: left; }
+
+/* ---------- Buttons ---------- */
+button {
+  font: inherit; font-size: .85em; font-weight: 650;
+  border: 0; border-radius: 12px; padding: .55em 1.1em;
+  cursor: pointer; background: var(--blue); color: #fff;
+}
+button:hover  { filter: brightness(1.08); }
+button:active { transform: scale(.96); }
+button.green { background: var(--fair); }
+button.red   { background: var(--loaded); }
+button.plain { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
+
+/* ---------- Dice pictures ---------- */
+div > .die, span > .die, button > .die { width: 100%; display: block; }
+.die rect   { fill: var(--card); stroke: var(--muted); stroke-width: 3; }
+.die circle { fill: var(--ink); }
+.die.fair rect   { fill: var(--fair-soft);   stroke: var(--fair); }
+.die.loaded rect { fill: var(--loaded-soft); stroke: var(--loaded); }
+.big-die { width: clamp(90px, 10vw, 150px); margin: 16px auto; }
+.shake { animation: shake .35s; }
+@keyframes shake { 25% { transform: rotate(-14deg) scale(.92); } 75% { transform: rotate(12deg) scale(1.05); } }
+
+/* ---------- Bar chart (Two dice section) ---------- */
+.chart-bars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; height: 180px; align-items: end; margin-top: 16px; }
+.chart-bars .col { display: flex; flex-direction: column; justify-content: flex-end; height: 100%; text-align: center; }
+.chart-bars .bar { border-radius: 8px 8px 3px 3px; min-height: 3px; transition: height .3s; }
+.chart-bars .pct { font-size: .7em; color: var(--muted); }
+.chart-bars .face { font-size: .75em; font-weight: 700; }
+
+/* ---------- Spot it game ---------- */
+.hand { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; }
+.cell {
+  background: var(--card); border: 2px solid var(--line); border-radius: 16px;
+  padding: 8px 6px; text-align: center; cursor: pointer; font-size: .75em; font-weight: 600;
+}
+.cell svg { width: 70%; max-width: 80px; display: block; margin: 0 auto 4px; }
+.cell.suspect { border-color: var(--gold); }
+.cell .hmm { display: block; font-size: .85em; color: var(--muted); font-weight: 500; }
+.score { width: 100%; border-collapse: collapse; }
+.score th, .score td { padding: .45em .6em; text-align: center; border-bottom: 1px solid var(--line); }
+.score th { color: var(--muted); font-size: .8em; }
+.score td:first-child { text-align: left; font-weight: 700; }
+.steps-list { margin: .4em 0 0; padding-left: 1.3em; }
+.steps-list li { margin: .35em 0; }
+@media (max-width: 700px) { .hand { grid-template-columns: repeat(4, 1fr); } }
+
+/* ---------- Model diagram ---------- */
+.diagram { width: 100%; }
+.diagram text { text-anchor: middle; fill: var(--ink); font-size: 16px; }
+.diagram .big  { font-size: 22px; font-weight: 800; }
+.diagram .tiny { font-size: 14px; fill: var(--muted); }
+.diagram .fair-fill   { fill: var(--fair); }
+.diagram .loaded-fill { fill: var(--loaded); }
+.diagram .arrow { fill: none; stroke: var(--muted); stroke-width: 2.5; }
+.diagram .arrow-head { fill: var(--muted); }
+.state-fair   { fill: var(--fair-soft);   stroke: var(--fair);   stroke-width: 3; }
+.state-loaded { fill: var(--loaded-soft); stroke: var(--loaded); stroke-width: 3; }
+
+/* ---------- Evidence section ---------- */
+.pad { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
+.pad button { background: transparent; padding: 0; width: clamp(54px, 5.5vw, 90px); }
+.strip { display: flex; flex-wrap: wrap; gap: 4px; min-height: 40px; margin-top: 14px; }
+.strip .one { display: flex; flex-direction: column; gap: 3px; width: clamp(24px, 2.1vw, 36px); }
+.strip .one i { height: 6px; border-radius: 3px; }
+.key { display: flex; gap: 1.2em; flex-wrap: wrap; font-size: .7em; color: var(--muted); margin: 8px 0; }
+.line-box { display: grid; grid-template-columns: auto 1fr; gap: 8px; }
+.axis { display: flex; flex-direction: column; justify-content: space-between; font-size: .6em; color: var(--muted); }
+.line-chart { width: 100%; height: 160px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+.meter { font-size: clamp(48px, 7vw, 110px); font-weight: 800; line-height: 1; margin: 12px 0; color: var(--muted); }
+.verdict { font-size: 1.1em; font-weight: 700; margin-bottom: 14px; }
+#evidence .center-text .note { margin-bottom: 14px; }
+
+/* ---------- How it guesses ---------- */
+#steps { width: 100%; max-height: 52vh; }
+#steps text { fill: var(--ink); font-size: 18px; font-weight: 600; }
+#steps .link { stroke: var(--muted); stroke-width: 2; opacity: .45; }
+#steps .best { stroke: var(--gold); stroke-width: 7; stroke-linecap: round; opacity: 1; }
