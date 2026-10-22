@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Loaded Dice Detector</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== Top menu ===== -->
+<nav class="nav">
+  <a class="title" href="#top">🎲 Loaded Dice Detector</a>
+  <a href="#dice">Two dice</a>
+  <a href="#game">Spot it</a>
+  <a href="#model">Model</a>
+  <a href="#evidence">Evidence</a>
+  <a href="#guess">How it guesses</a>
+</nav>
+
+
+<!-- ===== 1. Title ===== -->
+<section id="top" class="hero">
+  <div class="row center" id="titleDice"></div>
+  <div class="kicker">Hidden Markov Models · Machine Learning Project</div>
+  <h1>The Loaded Dice Detector</h1>
+  <p class="sub">Catching a dishonest casino using only the numbers it rolls.</p>
+  <a class="scroll" href="#dice">Scroll to explore ↓</a>
+</section>
+
+
+<!-- ===== 2. Two dice ===== -->
+<section id="dice">
+  <div class="kicker">The setup</div>
+  <h2>The casino owns two dice that look the same</h2>
+  <div class="cols">
+    <div class="card fair">
+      <h3 class="fair-text">Fair die</h3>
+      <p class="muted small">Every face has a 1 in 6 chance.</p>
+      <div id="fairDie" class="big-die"></div>
+      <div class="row center">
+        <button class="green" onclick="rollMany(FAIR, 1)">Roll once</button>
+        <button class="plain" onclick="rollMany(FAIR, 100)">Roll ×100</button>
+      </div>
+      <div class="chart-bars" id="fairBars"></div>
+    </div>
+    <div class="card loaded">
+      <h3 class="loaded-text">Loaded die</h3>
+      <p class="muted small">Rolls a <b>6</b> half the time.</p>
+      <div id="loadedDie" class="big-die"></div>
+      <div class="row center">
+        <button class="red" onclick="rollMany(LOADED, 1)">Roll once</button>
+        <button class="plain" onclick="rollMany(LOADED, 100)">Roll ×100</button>
+      </div>
+      <div class="chart-bars" id="loadedBars"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== 3. Spot it game ===== -->
+<section id="game">
+  <div class="kicker">The problem</div>
+  <h2>The dealer switches dice in secret. Can you spot it?</h2>
+  <p class="muted">We only see the numbers. Tap the rolls you think came from the <span class="loaded-text">loaded</span> die, then reveal.</p>
+  <div class="hand" id="hand"></div>
+  <div class="row">
+    <button onclick="revealHand()">Reveal the truth</button>
+    <button class="plain" onclick="newHand()">New hand</button>
+  </div>
+  <div class="cols" id="handResult"></div>
+</section>
+
+
+<!-- ===== 4. The model ===== -->
+<section id="model">
+  <div class="kicker">The model</div>
+  <h2>This is a Hidden Markov Model</h2>
+  <p class="muted">A fancy name for: <b>something hidden changes over time, and we only see clues.</b></p>
+  <div class="cols">
+    <div class="card">
+      <svg viewBox="0 0 640 250" class="diagram">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" class="arrow-head"/>
+          </marker>
+        </defs>
+        <!-- arrows -->
+        <path class="arrow" d="M215,105 Q320,45 425,105" marker-end="url(#arrow)"/>
+        <path class="arrow" d="M425,150 Q320,210 215,150" marker-end="url(#arrow)"/>
+        <path class="arrow" d="M130,75 C95,15 205,15 170,75" marker-end="url(#arrow)"/>
+        <path class="arrow" d="M470,75 C435,15 545,15 510,75" marker-end="url(#arrow)"/>
+        <!-- circles -->
+        <circle cx="150" cy="128" r="64" class="state-fair"/>
+        <circle cx="490" cy="128" r="64" class="state-loaded"/>
+        <!-- labels -->
+        <text x="150" y="124" class="big fair-fill">FAIR</text>
+        <text x="150" y="148" class="tiny">each face 1/6</text>
+        <text x="490" y="124" class="big loaded-fill">LOADED</text>
+        <text x="490" y="148" class="tiny">6 → 0.5, others 0.1</text>
+        <text x="320" y="58">switch 0.05</text>
+        <text x="320" y="228">switch 0.10</text>
+        <text x="150" y="16">stay 0.95</text>
+        <text x="490" y="16">stay 0.90</text>
+      </svg>
+    </div>
+    <div class="stack">
+      <div class="card blue"><h3>Hidden</h3><p class="small">We can't see which die is used: <span class="fair-text">Fair</span> or <span class="loaded-text">Loaded</span>.</p></div>
+      <div class="card blue"><h3>Switching</h3><p class="small">The dealer doesn't switch often, so the same die stays for many rolls.</p></div>
+      <div class="card blue"><h3>Numbers</h3><p class="small">Each die has its own chances. The loaded one loves 6.</p></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== 5. Evidence ===== -->
+<section id="evidence">
+  <div class="kicker">The key idea</div>
+  <h2>One 6 proves nothing. A streak of 6s does.</h2>
+  <div class="cols">
+    <div class="card">
+      <p class="muted small">Tap a die to add a roll:</p>
+      <div class="pad" id="pad"></div>
+      <div class="row">
+        <button class="plain" onclick="addRolls([6, 6, 6, 6, 6], null)">+ five 6s</button>
+        <button class="plain" onclick="addRandomRolls(FAIR)">+ 10 fair rolls</button>
+        <button class="plain" onclick="addRandomRolls(LOADED)">+ 10 loaded rolls</button>
+        <button class="plain" onclick="undoRoll()">Undo</button>
+        <button class="plain" onclick="clearRolls()">Clear</button>
+      </div>
+      <div class="strip" id="myRolls"></div>
+      <div class="key">
+        <span><b>Die colour</b> = die really used (<span class="fair-text">fair</span> / <span class="loaded-text">loaded</span> / white = you tapped it)</span>
+        <span><b>Bar under it</b> = what the HMM guesses</span>
+      </div>
+      <div class="line-box">
+        <div class="axis"><span>100%</span><span>50%</span><span>0%</span></div>
+        <svg class="line-chart" id="lineChart" viewBox="0 0 1000 200" preserveAspectRatio="none"></svg>
+      </div>
+      <p class="muted small">Line = chance the loaded die was used for each roll</p>
+    </div>
+    <div class="card center-text">
+      <p class="muted">Chance the <b>last roll</b> used the loaded die</p>
+      <div class="meter" id="meter">0%</div>
+      <div class="verdict" id="verdict"></div>
+      <div class="note" id="history">Add some rolls to start.</div>
+      <p class="muted small">Tip: tap a few 6s one at a time and watch the number rise.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== 6. How it guesses (Viterbi step by step) ===== -->
+<section id="guess">
+  <div class="kicker">How the computer guesses</div>
+  <h2>It checks one roll at a time, then picks the best story</h2>
+  <p class="muted">Bigger % = that die fits the rolls better so far. Press <b>Play</b> and watch.</p>
+  <div class="card">
+    <svg id="steps" viewBox="0 0 1240 400"></svg>
+  </div>
+  <div class="note" id="stepText"></div>
+  <div class="row">
+    <button onclick="nextStep()">Next step</button>
+    <button class="plain" onclick="play()">▶ Play</button>
+    <button class="plain" onclick="resetSteps()">Reset</button>
+  </div>
+</section>
+
+
+<!-- The model first, then the page code -->
+<script src="hmm.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
